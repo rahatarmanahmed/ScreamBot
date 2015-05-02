@@ -8,7 +8,7 @@
         return;
     }
 
-    var SCREAM_THRESHOLD = 70;
+    var SCREAM_THRESHOLD = 90;
     var context = new AudioContext();
     var analyzer, buffer;
     var startTime = -1;
