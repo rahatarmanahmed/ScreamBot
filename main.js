@@ -17,10 +17,17 @@ $(function(){
     })
 
     var SCREAM_THRESHOLD = 80;
+    var POST_SCREAM_DELAY = 3000;
+    var MIN_TIME_TO_DELAY = 1000;
     var context = new AudioContext();
     var analyzer, buffer;
     var startTime = -1;
+    var endTime = new Date(0);
     navigator.getUserMedia({audio: true}, onMic, onMicError);
+
+    $('#reset-btn').click(function() {
+        localStorage.removeItem('screamhighscore');
+    })
 
     // shit's fucked, just show a message
     function justGiveUp(msg) {
@@ -49,21 +56,25 @@ $(function(){
         var volume = average(buffer);
         var seconds = 0;
 
-        if(volume >= SCREAM_THRESHOLD) {
+        if(volume >= SCREAM_THRESHOLD && msSince(endTime) > POST_SCREAM_DELAY)  {
             if(startTime === -1) {
                 startTime = new Date();
-                $('#sampson')[0].src = screamGifs[Math.floor(Math.random() * screamGifs.length)];
+                $('#gif-container').css('background-image', "url('"+screamGifs[Math.floor(Math.random() * screamGifs.length)]+"')");
             }
-            seconds = ((new Date()).getTime() - startTime.getTime()) / 1000;
+            seconds = msSince(startTime) / 1000;
         }   
         else {
             if(startTime !== -1) {
-                $('#sampson')[0].src = 'img/idle.gif'
+                if(msSince(startTime) >= MIN_TIME_TO_DELAY) {
+                    endTime = new Date();
+                }
+                $('#gif-container').css('background-image', "url('img/idle.gif')")
                 startTime = -1;    
             }
         }
-        
-        $('#time').html(seconds + 's');
+        if(msSince(endTime) > POST_SCREAM_DELAY) {
+            $('#time').html(seconds + 's');
+        }
 
         var highscore = localStorage.getItem('screamhighscore') || 0;
         if(seconds > highscore) {
@@ -74,6 +85,14 @@ $(function(){
         $('#highscore').html(highscore + 's');
 
         requestAnimationFrame(render);
+    }
+
+    function duration(start, end) {
+        return end.getTime() - start.getTime();
+    }
+
+    function msSince(date) {
+        return duration(date, new Date());
     }
 
     function average(arr) {
