@@ -8,14 +8,21 @@
         return;
     }
 
-    var SCREAM_THRESHOLD = 90;
+    // Preload GIFs
+    var screamGifs = ['img/screaming/1.gif', 'img/screaming/2.gif', 'img/screaming/3.gif', 'img/screaming/4.gif', 'img/screaming/5.gif']
+    screamGifs.forEach(function(gif){
+        var image = new Image();
+        image.src = gif;
+    })
+
+    var SCREAM_THRESHOLD = 80;
     var context = new AudioContext();
     var analyzer, buffer;
     var startTime = -1;
     navigator.getUserMedia({audio: true}, onMic, onMicError);
 
     function justGiveUp(msg) {
-        $(body).html(msg);
+        $(document.body).html(msg);
     }
 
     function onMicError(e) {
@@ -26,7 +33,7 @@
     function onMic(stream) {
         var input = context.createMediaStreamSource(stream);
         analyser = context.createAnalyser();
-        analyser.smoothingTimeConstant = .95;
+        analyser.smoothingTimeConstant = .70;
         buffer = new Uint8Array(analyser.frequencyBinCount);
 
         input.connect(analyser);
@@ -43,11 +50,15 @@
         if(volume >= SCREAM_THRESHOLD) {
             if(startTime === -1) {
                 startTime = new Date();
+                $('#sampson')[0].src = screamGifs[Math.floor(Math.random() * screamGifs.length)];
             }
             seconds = ((new Date()).getTime() - startTime.getTime()) / 1000;
-        }
+        }   
         else {
-            startTime = -1;
+            if(startTime !== -1) {
+                $('#sampson')[0].src = 'img/idle.gif'
+                startTime = -1;    
+            }
         }
         
         $('#time').html(seconds + 's');
