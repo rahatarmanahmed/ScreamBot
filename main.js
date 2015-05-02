@@ -8,9 +8,10 @@
         return;
     }
 
-
+    var SCREAM_THRESHOLD = 70;
     var context = new AudioContext();
     var analyzer, buffer;
+    var startTime = -1;
     navigator.getUserMedia({audio: true}, onMic, onMicError);
 
     function justGiveUp(msg) {
@@ -25,21 +26,45 @@
     function onMic(stream) {
         var input = context.createMediaStreamSource(stream);
         analyser = context.createAnalyser();
+        analyser.smoothingTimeConstant = .95;
         buffer = new Uint8Array(analyser.frequencyBinCount);
 
-        input.connect(analyzer);
+        input.connect(analyser);
 
-        requestAnimFrame(render);
+        requestAnimationFrame(render);
     }
 
     function render() {
-        analyser.getByteTimeDomainData(buffer);
-        $('#time').html(average(buffer));
-        requestAnimFrame(render);
+        analyser.getByteFrequencyData(buffer);
+        
+        var volume = average(buffer);
+        var seconds = 0;
+
+        if(volume >= SCREAM_THRESHOLD) {
+            if(startTime === -1) {
+                startTime = new Date();
+            }
+            seconds = ((new Date()).getTime() - startTime.getTime()) / 1000;
+        }
+        else {
+            startTime = -1;
+        }
+        
+        $('#time').html(seconds + 's');
+
+        var highscore = localStorage.getItem('screamhighscore') || 0;
+        if(seconds > highscore) {
+            highscore = seconds;
+            localStorage.setItem('screamhighscore', highscore);
+        }
+
+        $('#highscore').html(highscore + 's');
+
+        requestAnimationFrame(render);
     }
 
     function average(arr) {
-        return arr.reduce(function(sum, i){
+        return [].reduce.call(arr, function(sum, i){
             return sum + i;
         }) / arr.length;
     }
