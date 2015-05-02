@@ -1,10 +1,11 @@
-(function(){
+$(function(){
+
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
     // Check if they ain't got shit
     if(!navigator.getUserMedia || !window.AudioContext) {
-        justGiveUp("dogg, your browser is too old all not supporting new web audio standards all holding back the web development industry. go get a good browser pls.")
+        justGiveUp("dogg, your browser ain't even support microphones? holding back the web development industry, much???? go get a <a href='http://caniuse.com/#feat=stream'>Good Browser</a>!");
         return;
     }
 
@@ -21,8 +22,9 @@
     var startTime = -1;
     navigator.getUserMedia({audio: true}, onMic, onMicError);
 
+    // shit's fucked, just show a message
     function justGiveUp(msg) {
-        $(document.body).html(msg);
+        $(document.body).html('<p>' + msg + '</p>');
     }
 
     function onMicError(e) {
@@ -79,4 +81,4 @@
             return sum + i;
         }) / arr.length;
     }
-})();
+});
