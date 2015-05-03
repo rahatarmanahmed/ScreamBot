@@ -16,7 +16,7 @@ $(function(){
         image.src = gif;
     })
 
-    var SCREAM_THRESHOLD = 80;
+    var SCREAM_THRESHOLD = 40;
     var POST_SCREAM_DELAY = 3000;
     var MIN_TIME_TO_DELAY = 1000;
     var context = new AudioContext();
